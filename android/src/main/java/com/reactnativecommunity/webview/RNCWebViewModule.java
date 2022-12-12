@@ -139,7 +139,52 @@ public class RNCWebViewModule extends ReactContextBaseJavaModule implements Acti
     }
     promise.resolve(result);
   }
+  
+  
+  
+  
+  //swx修改
+  //=======================开始==========================
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public boolean startPhotoPickerIntent(final ValueCallback<Uri[]> callback, final Intent intent, final String[] acceptTypes, final boolean allowMultiple) {
+    filePathCallback = callback;
+    if(arrayContainsString(acceptTypes, "pdf")){
+      ArrayList<Parcelable> extraIntents = new ArrayList<>();
+        if (acceptsImages(acceptTypes)) {
+          extraIntents.add(getPhotoIntent());
+        }
+        if (acceptsVideo(acceptTypes)) {
+          extraIntents.add(getVideoIntent());
+        }
 
+        Intent fileSelectionIntent = getFileChooserIntent(acceptTypes, allowMultiple);
+
+        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+        chooserIntent.putExtra(Intent.EXTRA_INTENT, fileSelectionIntent);
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
+
+        if (chooserIntent.resolveActivity(getCurrentActivity().getPackageManager()) != null) {
+          getCurrentActivity().startActivityForResult(chooserIntent, PICKER);
+        } else {
+          Log.w("RNCWebViewModule", "there is no Activity to handle this Intent");
+        }
+      }else{
+        getCurrentActivity().startActivityForResult(getPhotoIntent(),1);
+      }
+
+    //getCurrentActivity().startActivityForResult(getPhotoIntent(),1);
+    return true;
+  }
+  
+  //=======================结束==========================
+  
+  
+  
+  
+  
+  
+  
+  
   @ReactMethod(isBlockingSynchronousMethod = true)
   public void onShouldStartLoadWithRequestCallback(final boolean shouldStart, final int lockIdentifier) {
     final AtomicReference<ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState> lockObject = shouldOverrideUrlLoadingLock.getLock(lockIdentifier);
